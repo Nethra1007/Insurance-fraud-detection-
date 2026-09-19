@@ -9,6 +9,10 @@ import streamlit as st
 import pandas as pd
 from engine.knowledge_base import KnowledgeBase
 from database.db import init_db, get_session, save_rules_snapshot
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+RULES_PATH = os.path.join(BASE_DIR, "data", "rules.json")
+CLAIMS_PATH = os.path.join(BASE_DIR, "data", "claims.csv")
 
 RISK_COLORS = {
     "Low": "#2ecc71",
@@ -64,7 +68,7 @@ def inject_css():
 
 @st.cache_resource
 def get_knowledge_base() -> KnowledgeBase:
-    kb = KnowledgeBase("data/rules.json")
+    kb = KnowledgeBase(RULES_PATH)
     init_db()
     session = get_session()
     save_rules_snapshot(session, kb.rules)
@@ -74,7 +78,7 @@ def get_knowledge_base() -> KnowledgeBase:
 
 @st.cache_data
 def load_claims_df() -> pd.DataFrame:
-    return pd.read_csv("data/claims.csv")
+    return pd.read_csv(CLAIMS_PATH)
 
 
 def risk_pill_html(risk_level: str) -> str:
