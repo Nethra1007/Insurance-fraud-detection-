@@ -12,10 +12,15 @@ from sqlalchemy import (
     create_engine, Column, Integer, String, Float, Boolean, DateTime, Text
 )
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.pool import StaticPool
 
-DB_PATH = "database/fraud_detection.db"
-engine = create_engine(f"sqlite:///{DB_PATH}", echo=False,
-                        connect_args={"check_same_thread": False})
+DB_PATH = ":memory:"
+engine = create_engine(
+    "sqlite:///:memory:",
+    echo=False,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
