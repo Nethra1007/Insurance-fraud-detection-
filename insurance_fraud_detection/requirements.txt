@@ -1,0 +1,11 @@
+fastapi==0.141.1
+uvicorn==0.53.0
+sqlalchemy==2.0.54
+streamlit==1.64.0
+plotly==7.1.0
+networkx==3.6.1
+Faker==40.39.0
+pandas==3.0.2
+numpy==2.4.4
+pydantic==2.13.5
+python-multipart==0.0.32

@@ -1,0 +1,379 @@
+{
+  "rules": [
+    {
+      "rule_id": "R01",
+      "name": "Unusual Claim Amount",
+      "description": "Claim amount significantly exceeds the expected value for this policy type.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "claim_amount_ratio", "op": ">", "value": 2.0}
+      ]},
+      "then": {"conclusion": "unusual_claim_amount", "confidence": 0.85, "category": "financial"},
+      "backward_question": "Does the claim amount significantly exceed the expected value for this policy type?",
+      "evidence_label": "Claim & Policy Details"
+    },
+    {
+      "rule_id": "R02",
+      "name": "Claim Near Policy Limit",
+      "description": "Claim amount is close to the maximum policy coverage limit.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "claim_to_coverage_ratio", "op": ">", "value": 0.9}
+      ]},
+      "then": {"conclusion": "claim_near_policy_limit", "confidence": 0.7, "category": "financial"},
+      "backward_question": "Is the claim amount close to the maximum policy coverage limit?",
+      "evidence_label": "Policy Coverage"
+    },
+    {
+      "rule_id": "R03",
+      "name": "Round-Number Claim",
+      "description": "Claim amount is a suspiciously round figure, common in fabricated claims.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "is_round_number_claim", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "round_number_claim", "confidence": 0.4, "category": "financial"},
+      "backward_question": "Is the claim amount an unusually round figure?",
+      "evidence_label": "Claim Amount Pattern"
+    },
+    {
+      "rule_id": "R04",
+      "name": "Repeated Claim Pattern",
+      "description": "Customer has multiple previous claims within a short time window.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "previous_claims_count", "op": ">=", "value": 3}
+      ]},
+      "then": {"conclusion": "repeated_claim_pattern", "confidence": 0.75, "category": "history"},
+      "backward_question": "Does the customer have multiple previous claims in a short period?",
+      "evidence_label": "Customer Claim History"
+    },
+    {
+      "rule_id": "R05",
+      "name": "High Claim Frequency",
+      "description": "Customer files claims more frequently than the population average.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "claim_frequency_per_year", "op": ">=", "value": 2}
+      ]},
+      "then": {"conclusion": "high_claim_frequency", "confidence": 0.65, "category": "history"},
+      "backward_question": "Does the customer file claims more often than average?",
+      "evidence_label": "Claim Frequency"
+    },
+    {
+      "rule_id": "R06",
+      "name": "Prior Confirmed Fraud",
+      "description": "Customer has at least one prior confirmed fraud record.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "previous_fraud", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "prior_fraud_history", "confidence": 0.9, "category": "history"},
+      "backward_question": "Does the customer have a prior confirmed fraud record?",
+      "evidence_label": "Fraud History"
+    },
+    {
+      "rule_id": "R07",
+      "name": "Multiple Claims Short Window",
+      "description": "Two or more claims filed within a 30-day window.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "claims_in_last_30_days", "op": ">=", "value": 2}
+      ]},
+      "then": {"conclusion": "multiple_claims_short_window", "confidence": 0.7, "category": "history"},
+      "backward_question": "Were multiple claims filed within a short (30-day) window?",
+      "evidence_label": "Recent Claim Activity"
+    },
+    {
+      "rule_id": "R08",
+      "name": "Early Claim After Policy Start",
+      "description": "Claim was filed shortly after the policy started (classic staged-loss pattern).",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "days_since_policy_start", "op": "<", "value": 30}
+      ]},
+      "then": {"conclusion": "early_claim_after_policy_start", "confidence": 0.8, "category": "timing"},
+      "backward_question": "Was the claim filed shortly after the policy started?",
+      "evidence_label": "Policy Timing"
+    },
+    {
+      "rule_id": "R09",
+      "name": "Document Inconsistency",
+      "description": "Submitted documents are incomplete or contain inconsistencies.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "document_incomplete", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "document_inconsistency", "confidence": 0.75, "category": "evidence"},
+      "backward_question": "Do the supporting documents contain inconsistencies or gaps?",
+      "evidence_label": "Document Status"
+    },
+    {
+      "rule_id": "R10",
+      "name": "Accident-Report Date Mismatch",
+      "description": "Police report date does not align with the reported accident date.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "report_date_mismatch", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "accident_report_mismatch", "confidence": 0.8, "category": "evidence"},
+      "backward_question": "Does the police report date align with the accident date?",
+      "evidence_label": "Accident Report"
+    },
+    {
+      "rule_id": "R11",
+      "name": "Missing Police Report",
+      "description": "No police report on file for an accident type that requires one.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "missing_police_report", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "missing_police_report_flag", "confidence": 0.7, "category": "evidence"},
+      "backward_question": "Is a police report missing for an accident type that requires one?",
+      "evidence_label": "Police Report"
+    },
+    {
+      "rule_id": "R12",
+      "name": "Damage-Description Mismatch",
+      "description": "Reported damage does not match the accident description or photos.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "damage_match", "op": "==", "value": false}
+      ]},
+      "then": {"conclusion": "damage_mismatch", "confidence": 0.75, "category": "evidence"},
+      "backward_question": "Does the reported damage match the accident description?",
+      "evidence_label": "Damage Assessment"
+    },
+    {
+      "rule_id": "R13",
+      "name": "Vehicle Age vs Damage Mismatch",
+      "description": "Extent of damage is inconsistent with the vehicle's age/condition.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "vehicle_age", "op": ">", "value": 12},
+        {"fact": "claim_amount_ratio", "op": ">", "value": 1.5}
+      ]},
+      "then": {"conclusion": "vehicle_age_damage_mismatch", "confidence": 0.6, "category": "evidence"},
+      "backward_question": "Is the claimed damage disproportionate to the vehicle's age?",
+      "evidence_label": "Vehicle Condition"
+    },
+    {
+      "rule_id": "R14",
+      "name": "High-Risk Geographic Zone",
+      "description": "Accident/claim location falls within a zone with historically high fraud rates.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "high_risk_location", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "high_risk_location_flag", "confidence": 0.5, "category": "geographic"},
+      "backward_question": "Is the claim location within a historically high-fraud zone?",
+      "evidence_label": "Location Risk Profile"
+    },
+    {
+      "rule_id": "R15",
+      "name": "Premium Payment Irregularity",
+      "description": "Premium payments show gaps or late payments prior to the claim.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "premium_payment_irregular", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "premium_irregularity", "confidence": 0.5, "category": "financial"},
+      "backward_question": "Were premium payments irregular before the claim was filed?",
+      "evidence_label": "Payment History"
+    },
+    {
+      "rule_id": "R16",
+      "name": "Policy Nearing Expiry",
+      "description": "Claim filed close to policy expiry/renewal, a known staged-claim window.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "days_to_policy_expiry", "op": "<", "value": 15}
+      ]},
+      "then": {"conclusion": "policy_near_expiry_claim", "confidence": 0.55, "category": "timing"},
+      "backward_question": "Was the claim filed shortly before policy expiry?",
+      "evidence_label": "Policy Lifecycle Timing"
+    },
+    {
+      "rule_id": "R17",
+      "name": "No Witnesses Reported",
+      "description": "Accident report lists no witnesses despite occurring in a populated area.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "no_witnesses", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "no_witnesses_flag", "confidence": 0.4, "category": "evidence"},
+      "backward_question": "Does the accident report lack any witnesses?",
+      "evidence_label": "Witness Information"
+    },
+    {
+      "rule_id": "R18",
+      "name": "Inconsistent Claimant Statement",
+      "description": "Claimant's statement contains internal contradictions versus the report.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "report_consistency", "op": "==", "value": false}
+      ]},
+      "then": {"conclusion": "report_inconsistent", "confidence": 0.7, "category": "evidence"},
+      "backward_question": "Is the claimant's statement consistent with the official report?",
+      "evidence_label": "Statement Consistency"
+    },
+    {
+      "rule_id": "R19",
+      "name": "Multiple Policies Same Vehicle",
+      "description": "Same vehicle is insured under more than one active policy.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "multiple_policies_same_vehicle", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "duplicate_policy_flag", "confidence": 0.65, "category": "financial"},
+      "backward_question": "Is the vehicle insured under more than one active policy?",
+      "evidence_label": "Policy Records"
+    },
+    {
+      "rule_id": "R20",
+      "name": "Total Loss with Low Mileage",
+      "description": "Vehicle declared a total loss despite unusually low recorded mileage/usage.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "claim_type", "op": "==", "value": "Total Loss"},
+        {"fact": "vehicle_age", "op": "<", "value": 2}
+      ]},
+      "then": {"conclusion": "suspicious_total_loss", "confidence": 0.6, "category": "evidence"},
+      "backward_question": "Is a near-new vehicle being declared a total loss?",
+      "evidence_label": "Vehicle & Claim Type"
+    },
+    {
+      "rule_id": "R21",
+      "name": "Customer Age Risk Profile",
+      "description": "Statistical fraud-risk association with certain claimant age brackets (used only as a weak supporting signal).",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "age", "op": "<", "value": 25}
+      ]},
+      "then": {"conclusion": "age_risk_signal", "confidence": 0.3, "category": "customer"},
+      "backward_question": "Does the claimant fall into a higher statistical risk age bracket?",
+      "evidence_label": "Customer Profile"
+    },
+    {
+      "rule_id": "R22",
+      "name": "Financial Red Flag (Composite)",
+      "description": "Combines unusual claim amount with early-claim timing.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "unusual_claim_amount", "op": "==", "value": true},
+        {"fact": "early_claim_after_policy_start", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "financial_red_flag", "confidence": 0.85, "category": "composite"},
+      "backward_question": "Are there financial anomalies combined with suspicious claim timing?",
+      "evidence_label": "Financial Pattern"
+    },
+    {
+      "rule_id": "R23",
+      "name": "Financial Red Flag (Repeated Pattern)",
+      "description": "Combines unusual claim amount with a repeated claim pattern.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "unusual_claim_amount", "op": "==", "value": true},
+        {"fact": "repeated_claim_pattern", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "financial_red_flag", "confidence": 0.8, "category": "composite"},
+      "backward_question": "Are there financial anomalies combined with a repeated claim pattern?",
+      "evidence_label": "Financial Pattern"
+    },
+    {
+      "rule_id": "R24",
+      "name": "History Red Flag (Fraud + Repetition)",
+      "description": "Combines repeated claims with a prior confirmed fraud record.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "repeated_claim_pattern", "op": "==", "value": true},
+        {"fact": "prior_fraud_history", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "history_red_flag", "confidence": 0.9, "category": "composite"},
+      "backward_question": "Does claim history show both repetition and a prior fraud record?",
+      "evidence_label": "History Pattern"
+    },
+    {
+      "rule_id": "R25",
+      "name": "History Red Flag (Repetition Only)",
+      "description": "Repeated claim pattern or high claim frequency alone.",
+      "if": {"operator": "OR", "conditions": [
+        {"fact": "repeated_claim_pattern", "op": "==", "value": true},
+        {"fact": "high_claim_frequency", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "history_red_flag", "confidence": 0.6, "category": "composite"},
+      "backward_question": "Does the customer show a repeated or unusually frequent claim pattern?",
+      "evidence_label": "History Pattern"
+    },
+    {
+      "rule_id": "R26",
+      "name": "History Red Flag (Prior Fraud Only)",
+      "description": "Prior confirmed fraud alone is sufficient to raise the history flag.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "prior_fraud_history", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "history_red_flag", "confidence": 0.85, "category": "composite"},
+      "backward_question": "Does the customer have a prior confirmed fraud record?",
+      "evidence_label": "History Pattern"
+    },
+    {
+      "rule_id": "R27",
+      "name": "Evidence Red Flag (Documents + Damage)",
+      "description": "Combines document inconsistency with damage mismatch.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "document_inconsistency", "op": "==", "value": true},
+        {"fact": "damage_mismatch", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "evidence_red_flag", "confidence": 0.85, "category": "composite"},
+      "backward_question": "Are the documents inconsistent AND is there a damage mismatch?",
+      "evidence_label": "Evidence Pattern"
+    },
+    {
+      "rule_id": "R28",
+      "name": "Evidence Red Flag (Report Issues)",
+      "description": "Report inconsistency or a report/accident date mismatch.",
+      "if": {"operator": "OR", "conditions": [
+        {"fact": "report_inconsistent", "op": "==", "value": true},
+        {"fact": "accident_report_mismatch", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "evidence_red_flag", "confidence": 0.75, "category": "composite"},
+      "backward_question": "Is the accident report inconsistent with the claim or its own timeline?",
+      "evidence_label": "Evidence Pattern"
+    },
+    {
+      "rule_id": "R29",
+      "name": "Evidence Red Flag (Missing Police Report)",
+      "description": "Police report missing where required.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "missing_police_report_flag", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "evidence_red_flag", "confidence": 0.65, "category": "composite"},
+      "backward_question": "Is a required police report missing from the claim file?",
+      "evidence_label": "Evidence Pattern"
+    },
+    {
+      "rule_id": "R30",
+      "name": "Fraud Hypothesis (Financial + Evidence)",
+      "description": "Top-level rule: financial anomalies combined with inconsistent evidence.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "financial_red_flag", "op": "==", "value": true},
+        {"fact": "evidence_red_flag", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "fraudulent_claim", "confidence": 0.9, "category": "goal"},
+      "backward_question": "Are there financial anomalies AND inconsistent supporting evidence?",
+      "evidence_label": "Combined Financial & Evidence Pattern"
+    },
+    {
+      "rule_id": "R31",
+      "name": "Fraud Hypothesis (History + Evidence)",
+      "description": "Top-level rule: suspicious claim history combined with inconsistent evidence.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "history_red_flag", "op": "==", "value": true},
+        {"fact": "evidence_red_flag", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "fraudulent_claim", "confidence": 0.88, "category": "goal"},
+      "backward_question": "Does the claim history look suspicious AND is the evidence inconsistent?",
+      "evidence_label": "Combined History & Evidence Pattern"
+    },
+    {
+      "rule_id": "R32",
+      "name": "Fraud Hypothesis (History + Financial)",
+      "description": "Top-level rule: suspicious claim history combined with financial anomalies.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "history_red_flag", "op": "==", "value": true},
+        {"fact": "financial_red_flag", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "fraudulent_claim", "confidence": 0.85, "category": "goal"},
+      "backward_question": "Does the claim history look suspicious AND are there financial anomalies?",
+      "evidence_label": "Combined History & Financial Pattern"
+    },
+    {
+      "rule_id": "R33",
+      "name": "Fraud Hypothesis (Direct Prior Fraud)",
+      "description": "Top-level rule: a prior confirmed fraud record alone, combined with any current-claim anomaly, is enough to flag.",
+      "if": {"operator": "AND", "conditions": [
+        {"fact": "prior_fraud_history", "op": "==", "value": true},
+        {"fact": "evidence_red_flag", "op": "==", "value": true}
+      ]},
+      "then": {"conclusion": "fraudulent_claim", "confidence": 0.92, "category": "goal"},
+      "backward_question": "Does the customer have a prior fraud record AND does this claim show inconsistent evidence?",
+      "evidence_label": "Prior Fraud + Evidence Pattern"
+    }
+  ]
+}
